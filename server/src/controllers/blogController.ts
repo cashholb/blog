@@ -1,14 +1,22 @@
 import express, { Request, Response } from 'express';
-import Post from '../models/post';
+import asyncHandler from "express-async-handler"
+import Comment from '../models/comment';
+import Post  from '../models/post';
 
-import asyncHandler from 'express-async-handler';
-
-const blogList = asyncHandler(async (req: Request, res: Response, ) => {
-  res.send('This is the blog list') 
+export const getAllPosts = asyncHandler( async (req: Request, res: Response) => {
+    const posts = await Post.find();
+    res.json(posts);
 });
 
-const article = asyncHandler(async (req: Request, res: Response, ) => {
-  res.send(`Blog post ${req.params.postId}`);
-});
+export const getPostWithComments = asyncHandler( async (req: Request, res: Response) => {
+  const { postId } = req.params;
+  const post = await Post.findById(postId).populate('comments').exec();
+  if (!post) {
+    res.status(404).json({ message: 'Post not found' });
+  }
 
-export default {blogList, article}
+  // the line below fixes the bug 'MissingSchemaError: Schema hasn't been registered for model "Comment"'
+  post.comments instanceof Comment ? post.comments : '';
+
+  res.json(post);
+});

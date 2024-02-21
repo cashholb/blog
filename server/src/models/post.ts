@@ -1,8 +1,15 @@
-import mongoose from 'mongoose';
+import { InferSchemaType, model, Schema } from 'mongoose';
 
-const PostSchema = new mongoose.Schema({
-  title: { type: String, minLength: 1, maxLength: 50 },
-  message: { type: String, required: true, minLength: 1, maxLength: 2000 },
+// Define Post schema
+const postSchema = new Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  likeCount: { type: Number, default: 0 },
+  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 });
 
-export default PostSchema;
+type Post = InferSchemaType<typeof postSchema>;
+
+
+export default model<Post>("Post", postSchema);

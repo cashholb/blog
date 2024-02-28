@@ -4,7 +4,6 @@ import { body, validationResult } from "express-validator";
 
 import Comment from '../models/comment';
 import Post  from '../models/post';
-import { Types } from 'mongoose';
 
 // -- Create --
 export const createComment = [

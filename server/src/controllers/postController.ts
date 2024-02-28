@@ -115,7 +115,7 @@ export const updatePost = [
 
     // Save the updated post
     await post.save();
-    
+
     // Respond with the updated post
     res.json(post);
   }),
@@ -123,6 +123,24 @@ export const updatePost = [
 
 // -- Delete --
 export const deletePost = asyncHandler( async (req: Request, res: Response ) => {
-  const postToDelete = await Post.findByIdAndDelete(req.params.postId);
-  res.json(postToDelete);
+  const postToDelete = await Post.findById(req.params.postId);
+  if(!postToDelete) {
+    res.status(404).json({ message: 'post not found' });
+  }
+
+  let deletedComments = [];
+  postToDelete.comments.forEach(async comment => {
+    const deletedComment = await Comment.findByIdAndDelete(comment);
+    if(!deletedComment) {
+      res.status(500).json({ message: 'Comment not found' });
+    }
+    deletedComments.push(deletedComment);
+  });
+
+  const deletedPost = Post.findByIdAndDelete(req.params.postId);
+  if(!deletedPost) {
+    res.status(404).json({ message: 'post not found' });
+  }
+
+  res.json([postToDelete, deletedComments]);
 });

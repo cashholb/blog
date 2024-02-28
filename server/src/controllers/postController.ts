@@ -6,16 +6,29 @@ import Comment from '../models/comment';
 import Post  from '../models/post';
 
 // -- Create --
-export const createPost = asyncHandler( async (req: Request, res: Response ) => {
-  
-  const newPost = new Post({
-    author: req.params.userId,
-    title: req.body.title,
-    content: req.body.content,
-  });
-  await newPost.save();
-  res.json(newPost);
-});
+export const createPost = [
+  // Validate and sanitize fields
+  body("title")
+    .trim()
+    .isLength({ min: 1, max: 50 })
+    .withMessage("Title must be between 1 and 50 characters")
+    .escape(),
+  body("content")
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Content must be specified")
+    .escape(),
+
+  asyncHandler( async (req: Request, res: Response ) => {
+    const newPost = new Post({
+      author: req.params.userId,
+      title: req.body.title,
+      content: req.body.content,
+    });
+    await newPost.save();
+    res.json(newPost);
+  })
+];
 
 // -- Read --
 export const getAllPosts = asyncHandler( async (req: Request, res: Response) => {
@@ -28,9 +41,6 @@ export const getPost = asyncHandler( async (req: Request, res: Response) => {
   if (!post) {
     res.status(404).json({ message: 'Post not found' });
   }
-
-  // the line below fixes the bug 'MissingSchemaError: Schema hasn't been registered for model "Comment"'
-  post.comments instanceof Comment ? post.comments : '';
 
   res.json(post);
 });

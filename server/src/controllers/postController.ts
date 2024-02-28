@@ -115,7 +115,7 @@ export const updatePost = [
 
     // Save the updated post
     await post.save();
-
+    
     // Respond with the updated post
     res.json(post);
   }),

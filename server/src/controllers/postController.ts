@@ -40,6 +40,7 @@ export const getPost = asyncHandler( async (req: Request, res: Response) => {
   const post = await Post.findById(req.params.postId).populate('comments').exec();
   if (!post) {
     res.status(404).json({ message: 'Post not found' });
+    return;
   }
 
   res.json(post);
@@ -90,6 +91,7 @@ export const updatePost = [
     // Check for validation errors
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
+      return;
     }
 
     // Extract data from request body
@@ -101,6 +103,7 @@ export const updatePost = [
     // Check if the post exists
     if (!post) {
       res.status(404).json({ message: "Post not found" });
+      return;
     }
 
     // Update post properties
@@ -126,6 +129,7 @@ export const deletePost = asyncHandler( async (req: Request, res: Response ) => 
   const postToDelete = await Post.findById(req.params.postId);
   if(!postToDelete) {
     res.status(404).json({ message: 'post not found' });
+    return;
   }
 
   let deletedComments = [];
@@ -133,6 +137,7 @@ export const deletePost = asyncHandler( async (req: Request, res: Response ) => 
     const deletedComment = await Comment.findByIdAndDelete(comment);
     if(!deletedComment) {
       res.status(500).json({ message: 'Comment not found' });
+      return;
     }
     deletedComments.push(deletedComment);
   });
@@ -140,6 +145,7 @@ export const deletePost = asyncHandler( async (req: Request, res: Response ) => 
   const deletedPost = Post.findByIdAndDelete(req.params.postId);
   if(!deletedPost) {
     res.status(404).json({ message: 'post not found' });
+    return;
   }
 
   res.json([postToDelete, deletedComments]);

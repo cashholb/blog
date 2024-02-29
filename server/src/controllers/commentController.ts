@@ -39,6 +39,7 @@ export const getAllCommentsOfPost = asyncHandler( async (req: Request, res: Resp
   const post = await Post.findById(req.params.postId).populate('comments').exec();
   if (!post) {
     res.status(404).json({ message: 'Comment not found' });
+    return;
   }
   res.json(post.comments);
 });
@@ -79,6 +80,7 @@ export const updateComment = [
     // Check for validation errors
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
+      return;
     }
 
     // Extract data from request body
@@ -90,6 +92,7 @@ export const updateComment = [
     // Check if the comment exists
     if (!comment) {
       res.status(404).json({ message: "Comment not found" });
+      return;
     }
 
     // Update comment properties

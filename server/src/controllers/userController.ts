@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import asyncHandler from "express-async-handler";
 import { body, validationResult } from "express-validator";
 
@@ -23,14 +23,22 @@ export const createUser = [
     .withMessage("Password cannot contain trailing/leading whitespace and must be withing 3 to 100 characters")
     .escape(),
 
-  asyncHandler( async (req: Request, res: Response) => {
+  asyncHandler( async (req: Request, res: Response, next: NextFunction) => {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
+      return;
     }
 
     const { username, email, password } = req.body;
+    
+    // Check if user with username already exists
+    const user = await User.find({username: username});
+    if(user.length > 0) {
+      res.status(403).json({ message: `Forbidden: username \'${username}\' already exists`})
+      return;
+    }
     
     const newUser = new User({
       username: username,
@@ -49,6 +57,7 @@ export const getAllUsers = asyncHandler( async (req: Request, res: Response) => 
   const users = await User.find();
   if(!users) {
     res.status(404).json({ message: 'No users found' });
+    return;
   }
   res.json(users);
 });
@@ -57,6 +66,7 @@ export const getUser = asyncHandler( async (req: Request, res: Response) => {
   const user = await User.findById(req.params.userId);
   if(!user) {
     res.status(404).json({ message: 'User not found' });
+    return;
   }
   res.json(user);
 });
@@ -85,11 +95,13 @@ export const updateUser = [
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
+      return;
     }
 
     const userToUpdate = await User.findById(req.params.userId);
     if(!userToUpdate) {
       res.status(404).json({ message: 'User not found' });
+      return;
     }
 
     // update fields if specified
@@ -116,11 +128,13 @@ export const deleteUser = asyncHandler( async (req: Request, res: Response) => {
     console.log(typeof commentsByUser);
     console.log(postsByUser);
     res.status(403).json({ message: `Forbidden: must first delete all ${commentsByUser && postsByUser ? 'comments and posts' : (commentsByUser ? 'comments' : 'posts')} by user` })
+    return;
   }
 
   const deletedUser = await User.findByIdAndDelete(req.params.userId)
   if(!deletedUser) {
     res.status(404).json({ message: 'User not found' });
+    return;
   }
   res.json(deletedUser);
 });

@@ -26,6 +26,7 @@ export const createPost = [
       content: req.body.content,
     });
     await newPost.save();
+    res.status(201);
     res.json(newPost);
   })
 ];

@@ -48,6 +48,7 @@ export const createUser = [
 
     await newUser.save();
 
+    res.status(201);
     res.json(newUser);
   }),
 ];

@@ -4,8 +4,11 @@ import mongoose from 'mongoose';
 import router from './routes/blogRouter';
 
 import 'dotenv/config'
+import cors from "cors";
 
 const app = express();
+app.use(cors<Request>());
+
 const PORT = process.env.PORT || 3000;
 
 // Set up mongoose connection

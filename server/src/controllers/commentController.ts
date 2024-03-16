@@ -30,6 +30,7 @@ export const createComment = [
     post.comments.push(newComment);
     const updatedPost = await Post.findByIdAndUpdate(req.params.postId, post, {});
 
+    res.status(201);
     res.json([newComment, updatedPost]);
   })
 ];

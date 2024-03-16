@@ -6,7 +6,8 @@ const commentSchema = new Schema({
   content: { type: String, required: true },
   timeStamp: { type: Date, default: Date.now },
   likeCount: { type: Number, default: 0 },
-  likes: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+  likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  replies: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
 });
 
 type Comment = InferSchemaType<typeof commentSchema>;
